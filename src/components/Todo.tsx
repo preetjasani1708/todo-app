@@ -10,6 +10,7 @@ export default function Todo() {
     }[]
   >([]);
   const [currentTodo, setCurrentTodo] = useState<string>("");
+  const [isInitialLoaded, setIsInitialLoaded] = useState<boolean>(false);
 
   const addTodo = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -43,15 +44,28 @@ export default function Todo() {
   };
 
   useEffect(() => {
-    const storedTodos = localStorage.getItem("todos");
-    if (storedTodos) {
-      setTodos(JSON.parse(storedTodos));
+    try {
+      const storedTodos = localStorage.getItem("todos");
+      if (storedTodos) {
+        setTodos(JSON.parse(storedTodos));
+      }
+    } catch (error) {
+      console.error("Fail to load todos from local storage: ", error);
+    } finally {
+      setIsInitialLoaded(true);
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
+    // Save todos to local storage whenever todos change, but only after initial load 
+    if (isInitialLoaded) {
+      try {
+        localStorage.setItem("todos", JSON.stringify(todos));
+      } catch (error) {
+        console.error("Fail to save todos in local storage: ", error);
+      }
+    }
+  }, [todos, isInitialLoaded]);
 
   return (
     <div className="flex flex-col items-center p-6 mx-auto max-w-md w-full bg-white rounded-lg shadow-lg">
@@ -88,7 +102,7 @@ export default function Todo() {
                 <div className="flex items-center">
                   <button
                     onClick={() => toggleTodo(item.id)}
-                    className={`w-6 h-6 mr-3 rounded-full border flex items-center justify-center ${
+                    className={`w-6 h-6 mr-3 min-w-[24px] rounded-full border flex items-center justify-center ${
                       item.completed
                         ? "bg-green-500 border-green-500 text-white"
                         : "border-gray-300 hover:border-blue-500"
@@ -102,6 +116,9 @@ export default function Todo() {
                         ? "line-through text-gray-400"
                         : "text-gray-800"
                     }`}
+                    style={{
+                      wordBreak: 'break-word'
+                    }}
                   >
                     {item.task}
                   </span>
