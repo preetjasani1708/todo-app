@@ -69,7 +69,7 @@ export default function Todo() {
 
   return (
     <div className="flex flex-col items-center p-6 mx-auto max-w-md w-full bg-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold mb-6 text-blue-600">Todo Application</h1>
+      <h1 className="text-3xl font-bold mb-6 text-blue-600">Todo</h1>
 
       <form onSubmit={addTodo} className="w-full flex mb-6">
         <input
